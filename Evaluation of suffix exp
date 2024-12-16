@@ -1,0 +1,89 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <math.h>
+#include <ctype.h> // For isdigit()
+
+// Global Variables
+int i, top = -1;
+int op1, op2, res, s[20]; // Stack to store operands
+char postfix[90], symb;
+
+// Function to push an item onto the stack
+void push(int item) {
+    if (top >= 19) { // Check stack overflow
+        printf("\nStack Overflow!");
+        exit(1);
+    }
+    top = top + 1;
+    s[top] = item;
+}
+
+// Function to pop an item from the stack
+int pop() {
+    if (top < 0) { // Check stack underflow
+        printf("\nStack Underflow!");
+        exit(1);
+    }
+    int item = s[top];
+    top = top - 1;
+    return item;
+}
+
+// Main Function
+int main() {
+    printf("\nEnter a valid postfix expression:\n");
+    scanf("%s", postfix); // Read postfix expression
+
+    for (i = 0; postfix[i] != '\0'; i++) {
+        symb = postfix[i];
+
+        if (isdigit(symb)) {
+            // If the symbol is a digit, push it onto the stack
+            push(symb - '0');
+        } else {
+            // If the symbol is an operator, pop two operands and evaluate
+            op2 = pop();
+            op1 = pop();
+            switch (symb) {
+                case '+':
+                    push(op1 + op2);
+                    break;
+                case '-':
+                    push(op1 - op2);
+                    break;
+                case '*':
+                    push(op1 * op2);
+                    break;
+                case '/':
+                    if (op2 == 0) { // Check division by zero
+                        printf("\nError: Division by zero!");
+                        exit(1);
+                    }
+                    push(op1 / op2);
+                    break;
+                case '%':
+                    push(op1 % op2);
+                    break;
+                case '$': // Fallthrough for '^'
+                case '^':
+                    push(pow(op1, op2));
+                    break;
+                default:
+                    printf("\nError: Invalid operator '%c'", symb);
+                    exit(1);
+            }
+        }
+    }
+
+    // Final result is on top of the stack
+    res = pop();
+
+    // Ensure the stack is empty after the evaluation
+    if (top != -1) {
+        printf("\nError: Invalid postfix expression!");
+        exit(1);
+    }
+
+    printf("\nResult = %d\n", res);
+    return 0;
+}
